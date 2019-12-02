@@ -1,23 +1,22 @@
 package rip;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.PriorityQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import rip.Node;
 import rip.Packet;
 
 /**
- * Abstract representation of a network communication channel.
- * Could be thought of as analogous to a switch.
+ * Abstract representation of a network communication channel. Could be thought
+ * of as analogous to a switch.
  *
  * This emulator is entirely deterministic.
  */
 public class Emulator {
     private static Node[] node;
     private static int trace;
-    private static PriorityQueue<Packet> eventList;
+    public static PriorityBlockingQueue<Packet> eventList;
     private static double time;
     private static final Random rng = new Random();
 
@@ -26,7 +25,14 @@ public class Emulator {
         init();
 
         while (true) {
-            if ((currentEvent = eventList.poll()) != null) {
+            currentEvent = null;
+            try {
+                currentEvent = eventList.take();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            if (currentEvent != null) {
                 if (trace>1) {
                     System.out.printf("MAIN: rcv event, t=%.3f, at %d", currentEvent.timestamp, currentEvent.dst);
                     System.out.printf(" src:%2d,", currentEvent.src);
@@ -47,6 +53,7 @@ public class Emulator {
         System.out.printf("\nSimulator terminated at t=%f, no packets in medium\n", time);
         for (Node n : node) {
             n.printDt();
+            n.stopCommunication();
         }
     }
 
@@ -63,6 +70,7 @@ public class Emulator {
 
         // Current topology
         node = new Node[4];
+        
         node[0] = new Node(0, new HashMap<Integer, Integer>(){{ put(1, 1); put(2, 3); put(3, 7); }}, 4);
         node[1] = new Node(1, new HashMap<Integer, Integer>(){{ put(0, 1); put(2, 1); }}, 4);
         node[2] = new Node(2, new HashMap<Integer, Integer>(){{ put(1, 1); put(0, 3); put(3, 2); }}, 4);
@@ -73,16 +81,14 @@ public class Emulator {
         node[2] = new Node(2, new HashMap<Integer, Integer>(){{ put(0, 23); put(1, 2); put(3, 5); }}, 4);
         node[3] = new Node(3, new HashMap<Integer, Integer>(){{ put(2, 5); }}, 4);
         */
-        time = 0.0;
-        eventList = new PriorityQueue<Packet>();
 
-        // Node 0 starts communication
-        ArrayList<Packet> packets = node[0].sendPacket();
-        for (Packet p : packets) {
-            time = time + rng.nextDouble();
-            p.timestamp = time;
+        time = 0.0;
+        eventList = new PriorityBlockingQueue<Packet>();
+
+        // Start communication on all nodes
+        for (Node n : node) {
+            n.startCommunication();
         }
-        eventList.addAll(node[0].sendPacket());
     }
 
     /**
@@ -99,14 +105,26 @@ public class Emulator {
             }
             System.out.printf("\n");
         }
-        ArrayList<Packet> packets = node[packet.dst].receivePacket(packet.src, packet.costs);
-        if (packets != null) {
-            for (Packet p : packets) {
-                time = time + rng.nextDouble();
-                p.timestamp = time;
-            }
-            eventList.addAll(packets);
-        }
+        node[packet.dst].receivePacket(packet.src, packet.costs);
         return;
     }
+
+    /**
+     * Adds packet to queue
+     *
+     * @param packet Packet to be added do queue
+     */
+    public static void addPacket(Packet packet) {
+        eventList.put(packet);
+    }
+
+    /**
+     * Gets global time in a sync'd way through an implicit mutex
+     * @return Current time
+     */
+    public static synchronized double getTime() {
+        time = time + rng.nextDouble();
+        return time;
+    }
+
 }

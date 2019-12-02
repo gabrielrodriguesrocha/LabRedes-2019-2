@@ -14,6 +14,11 @@ public class Packet implements Comparable<Packet> {
         this.costs = costs;
     }
 
+    public Packet(int src, int dst, ArrayList<Integer> costs, double timestamp) {
+        this(src, dst, costs);
+        this.timestamp = timestamp;
+    }
+
     @Override
     public int compareTo(Packet anotherPacket) {
         if (this.timestamp < anotherPacket.timestamp) {
