@@ -104,10 +104,9 @@ public class Emulator {
                 System.out.printf("%d  ", x);
             }
             System.out.printf("\n");
+            System.out.printf("    TOLAYER2: scheduling arrival on other side at time: %.3f\n", getTime());
         }
         node[packet.dst].receivePacket(packet);
-        if (trace>2)
-            System.out.printf("    TOLAYER2: scheduling arrival on other side at time: %.3f\n", getTime());
         return;
     }
 
