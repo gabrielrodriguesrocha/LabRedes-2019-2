@@ -15,7 +15,7 @@ import rip.Packet;
  */
 public class Emulator {
     private static Node[] node;
-    private static int trace;
+    public static int trace;
     public static PriorityBlockingQueue<Packet> eventList;
     private static double time;
     private static final Random rng = new Random();
@@ -70,7 +70,7 @@ public class Emulator {
 
         // Current topology
         node = new Node[4];
-        
+
         node[0] = new Node(0, new HashMap<Integer, Integer>(){{ put(1, 1); put(2, 3); put(3, 7); }}, 4);
         node[1] = new Node(1, new HashMap<Integer, Integer>(){{ put(0, 1); put(2, 1); }}, 4);
         node[2] = new Node(2, new HashMap<Integer, Integer>(){{ put(1, 1); put(0, 3); put(3, 2); }}, 4);
@@ -105,7 +105,9 @@ public class Emulator {
             }
             System.out.printf("\n");
         }
-        node[packet.dst].receivePacket(packet.src, packet.costs);
+        node[packet.dst].receivePacket(packet);
+        if (trace>2)
+            System.out.printf("    TOLAYER2: scheduling arrival on other side at time: %.3f\n", getTime());
         return;
     }
 

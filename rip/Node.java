@@ -99,11 +99,19 @@ public class Node {
 
     /**
      * Receives a neighbouring Node's cost row and updates own table if need be.
-     * @param origin The neighbouring Node's label
-     * @param w The neighbouring Node's cost row
+     * @param packet The packet this Node's received
      */
-    public void receivePacket(Integer origin, ArrayList<Integer> w) {
+    public void receivePacket(Packet packet) {
         this.dtUpdated = false;
+        Integer origin = packet.src;
+        ArrayList<Integer> w = packet.costs;
+
+        if (rip.Emulator.trace>3) {
+            System.out.printf("    NODE %d: received packet from %d, sent at time %.3f\n", this.label, origin, packet.timestamp);
+            System.out.printf("    NODE %d: current distance table\n", this.label);
+            this.printDt();
+        }
+
         ArrayList<Integer> thisNode = this.distanceTable.get(this.label);
         ArrayList<Integer> originNode = this.distanceTable.get(origin);
 
@@ -127,6 +135,16 @@ public class Node {
             } catch (NullPointerException e) {
                 System.out.println(e);
             }
+        }
+
+        if (this.dtUpdated && rip.Emulator.trace>3) {
+            System.out.printf("    NODE %d: distance table was updated\n", this.label);
+            this.printDt();
+            System.out.printf("    NODE %d: sending current min costs to nodes ", this.label);
+            for (int n : weights.keySet()) {
+                System.out.printf("%d ", n);
+            }
+            System.out.printf("\n");
         }
     }
     /**
