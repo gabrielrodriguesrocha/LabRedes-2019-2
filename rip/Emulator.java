@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import rip.Node;
 import rip.Packet;
 
@@ -22,16 +23,11 @@ public class Emulator {
 
     public static void main(String[] args) {
         Packet currentEvent;
+        boolean breakLoop = false;
         init();
 
         while (true) {
-            currentEvent = null;
-            try {
-                currentEvent = eventList.take();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            currentEvent = eventList.poll();
             if (currentEvent != null) {
                 if (trace>1) {
                     System.out.printf("MAIN: rcv event, t=%.3f, at %d", currentEvent.timestamp, currentEvent.dst);
@@ -46,9 +42,12 @@ public class Emulator {
 
                 toLayer2(currentEvent);
             }
-            if (eventList.isEmpty()) {
-                break;
+            for (Node n : node) {
+                breakLoop = n.commStopped();
             }
+
+            if(breakLoop)
+                break;
         }
         System.out.printf("\nSimulator terminated at t=%f, no packets in medium\n", time);
         for (Node n : node) {

@@ -16,6 +16,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import rip.Packet;
@@ -107,7 +108,6 @@ public class Node {
         this.stopComm = true;
         this.sender.interrupt();
         this.receiver.interrupt();
-        this.receiver.stop();
     }
 
     /**
@@ -132,6 +132,12 @@ public class Node {
                 System.out.printf("\n");
             }
         }
+    }
+
+    public boolean commStopped() {
+        if (!sender.isAlive() || !receiver.isAlive() || stopComm)
+            return true;
+        return false;
     }
 }
 
@@ -263,7 +269,8 @@ class Receiver extends Thread {
                 receiverSocket.receive(receivePacket);
             } catch (final IOException e1) {
                 // TODO Auto-generated catch block
-                e1.printStackTrace();
+                this.node.stopComm = true;
+                receiverSocket.close();
             }
             final Packet packet = deserialize(receivePacket.getData());
             boolean internalUpdate = false;
