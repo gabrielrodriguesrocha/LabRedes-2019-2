@@ -34,20 +34,24 @@ public class Node {
     public ArrayList<ArrayList<Integer>> distanceTable;
 
     /**
-     * The destination table is actually transposed. That means position [i,j]
-     * represents known cost to j through i. This is done so that row[label] can be
-     * used to store known min costs from this Node to all others. Such
-     * representation is particularly handy for sending out min cost distance vector
-     * to other nodes, but can be a pain to print out according to specification. As
-     * an example, consider the following table for a node labelled 0: D0 | 0 | 1 |
-     * 2 -------------- 0 | 0 | 4 | 2 1 | 999 | 5 | 4 2 | 999 | 7 | 2 The first row
-     * tells us that the minimum costs to get to nodes 1 and 2 are 4 and 2,
-     * respectively. The second row tells us that: - the cost to get to node 1 by
-     * direct contact is 5; - the cost to get to node 1 by node 2 is 4; The third
-     * row tells us that: - the cost to get to node 2 by node 1 is 7; - the cost to
-     * get to node 2 by direct contact is 2; Hence, the minimum cost path from 0 to
-     * 1 is 0 -> 1 -> 2, instead of direct contact; Which is exactly why the first
-     * row states the cost to 1 is 4 instead of 5.
+     * The destination table is actually transposed. That means position [i,j] represents known cost to j through i.
+     * This is done so that row[label] can be used to store known min costs from this Node to all others.
+     * Such representation is particularly handy for sending out min cost distance vector to other nodes, but can be a pain to print out according to specification.
+     * As an example, consider the following table for a node labelled 0:
+     * D0 |  0  | 1 | 2
+     * --------------
+     *  0 |  0  | 4 | 2
+     *  1 | 999 | 5 | 4
+     *  2 | 999 | 7 | 2
+     * The first row tells us that the minimum costs to get to nodes 1 and 2 are 4 and 2, respectively.
+     * The second row tells us that:
+     *  - the cost to get to node 1 by direct contact is 5;
+     *  - the cost to get to node 1 by node 2 is 4;
+     * The third row tells us that:
+     *  - the cost to get to node 2 by node 1 is 7;
+     *  - the cost to get to node 2 by direct contact is 2;
+     * Hence, the minimum cost path from 0 to 1 is 0 -> 1 -> 2, instead of direct contact;
+     * Which is exactly why the first row states the cost to 1 is 4 instead of 5.
      */
 
     /**
