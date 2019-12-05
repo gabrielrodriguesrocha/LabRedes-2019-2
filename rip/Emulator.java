@@ -55,6 +55,7 @@ public class Emulator {
             n.printDt();
             n.stopCommunication();
         }
+        System.out.println("END!");
     }
 
     /**
@@ -106,7 +107,7 @@ public class Emulator {
             System.out.printf("\n");
             System.out.printf("    TOLAYER2: scheduling arrival on other side at time: %.3f\n", getTime());
         }
-        node[packet.dst].receivePacket(packet);
+        //node[packet.dst].receivePacket(packet);
         return;
     }
 

@@ -1,8 +1,10 @@
 package rip;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Packet implements Comparable<Packet> {
+public class Packet implements Comparable<Packet>, Serializable {
+    private static final long serialVersionUID = 4458136002143282228L;
     public int src;
     public int dst;
     public ArrayList<Integer> costs;
