@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import rip.Packet;
@@ -138,6 +136,10 @@ public class Node {
         }
     }
 
+    /**
+     * This method is used to identify when to stop the emulator loop.
+     * @return Whether comms have stopped or not.
+     */
     public boolean commStopped() {
         if (!sender.isAlive() || !receiver.isAlive() || stopComm)
             return true;
@@ -188,9 +190,7 @@ class Sender extends Thread {
     }
 
     public void run() {
-        Boolean tmp;
         while (true && !this.node.stopComm) {
-            /*try {*/
                 if (this.node.dtUpdated.poll() != null) {
                     this.node.weights.keySet().forEach(nodeLabel -> {
                         final Packet sendPacket = new Packet(this.node.label, nodeLabel,
@@ -210,12 +210,7 @@ class Sender extends Thread {
                             e.printStackTrace();
                         }
                     });
-                    //this.node.dtUpdated.offer(false);
                 }
-            /*} catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }*/
         }
     }
 }
